@@ -1,0 +1,15 @@
+.grid-minor { stroke: #d9d5cc; stroke-width: 1; vector-effect: non-scaling-stroke; }
+.grid-major { stroke: #bdb8ad; stroke-width: 1; vector-effect: non-scaling-stroke; }
+
+.room { fill: #fff; stroke: #22201c; stroke-width: 3; vector-effect: non-scaling-stroke; }
+.wall-label { fill: #6b665e; paint-order: stroke; stroke: #ece9e2; stroke-width: 3px; user-select: none; }
+
+.piece .body { stroke: #22201c; stroke-width: 1.5; vector-effect: non-scaling-stroke; cursor: move; }
+.piece.selected .body { stroke: var(--accent); stroke-width: 3; }
+.piece.warning .body { stroke: var(--danger); stroke-width: 3; }
+.piece-label { fill: #22201c; user-select: none; }
+
+.handle { vector-effect: non-scaling-stroke; stroke: var(--accent); stroke-width: 2; cursor: pointer; }
+.corner-handle { fill: #fff; }
+.corner-handle.selected { fill: var(--accent); }
+.edge-handle { fill: var(--accent); fill-opacity: 0.35; }
