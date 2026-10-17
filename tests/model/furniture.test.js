@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createFurniture, createFromPreset, updateFurniture } from '../../src/model/furniture.js';
+import { createFurniture, createFromPreset, updateFurniture, isValidPolygonShape } from '../../src/model/furniture.js';
 import { PRESETS } from '../../src/model/presets.js';
 
 describe('createFurniture', () => {
@@ -85,5 +85,21 @@ describe('updateFurniture', () => {
     const copy = JSON.stringify(f);
     updateFurniture(f, { label: 'x', width: 100 });
     expect(JSON.stringify(f)).toBe(copy);
+  });
+});
+
+describe('isValidPolygonShape', () => {
+  const rect = [{ x: -24, y: -15 }, { x: 24, y: -15 }, { x: 24, y: 15 }, { x: -24, y: 15 }];
+
+  it('accepts a normal shape', () => {
+    expect(isValidPolygonShape(rect)).toBe(true);
+  });
+
+  it('rejects a shape that crosses itself', () => {
+    expect(isValidPolygonShape([rect[0], rect[2], rect[1], rect[3]])).toBe(false);
+  });
+
+  it('rejects a shape thinner than the 6 inch minimum', () => {
+    expect(isValidPolygonShape([{ x: -10, y: -10 }, { x: 10, y: -10 }, { x: 10, y: -8 }])).toBe(false);
   });
 });

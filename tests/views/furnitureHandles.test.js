@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { attachFurnitureHandles } from '../../src/views/editor/furnitureHandles.js';
 import { createSelection } from '../../src/views/editor/selection.js';
 import { createViewport } from '../../src/render/viewport.js';
@@ -116,5 +116,30 @@ describe('furniture handles', () => {
     setup();
     handles.detach();
     expect(svg.querySelectorAll('[data-handle]')).toHaveLength(0);
+  });
+});
+
+describe('free shapes', () => {
+  it('get a rotation handle but no resize squares, which would sit on their vertex handles', () => {
+    setup({}, 'polygon');
+    expect(svg.querySelectorAll('[data-handle="resize"]')).toHaveLength(0);
+    expect(handle('rotate')).not.toBeNull();
+  });
+});
+
+describe('pointer handling', () => {
+  it('captures the pointer when a drag starts', () => {
+    setup();
+    svg.setPointerCapture = vi.fn();
+    fire(handle('resize', 'e'), 'pointerdown', 130, 100);
+    expect(svg.setPointerCapture).toHaveBeenCalledTimes(1);
+  });
+
+  it('ends the drag when the pointer is cancelled', () => {
+    setup();
+    fire(handle('resize', 'e'), 'pointerdown', 130, 100);
+    fire(svg, 'pointercancel', 130, 100);
+    fire(svg, 'pointermove', 200, 100);
+    expect(stored().width).toBe(60);
   });
 });

@@ -3,7 +3,8 @@ export const DEFAULT_TOLERANCE = 0.1;
 
 const cross = (o, a, b) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
 
-function signedArea(points) {
+/** Signed area; positive for the clockwise-on-screen winding that normalizeWinding produces. */
+export function signedArea(points) {
   let sum = 0;
   for (let i = 0; i < points.length; i++) {
     const p = points[i];

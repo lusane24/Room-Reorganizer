@@ -1,9 +1,10 @@
 import { localBounds } from '../../geometry/furnitureOutline.js';
 import { rotatePoint } from '../../geometry/transform.js';
+import { isValidPolygonShape } from '../../model/furniture.js';
 import { replaceFurniture } from '../../model/layoutEdits.js';
 import { getLayout, subscribe } from '../../model/store.js';
 import { svgEl } from '../../render/svg.js';
-import { pointerToWorld } from './canvasInput.js';
+import { capturePointer, pointerToWorld } from './canvasInput.js';
 
 const HANDLE_PX = 7;
 const MIN_POINTS = 3;
@@ -94,6 +95,7 @@ export function attachPolygonHandles(svg, viewport, layoutId, selection) {
       dragIndex = index;
     }
     selectedVertex = dragIndex;
+    capturePointer(svg, e);
     e.preventDefault();
     refresh();
   };
@@ -103,7 +105,8 @@ export function attachPolygonHandles(svg, viewport, layoutId, selection) {
     const f = selectedPiece();
     if (!f || !f.points[dragIndex]) return;
     const local = toLocal(f, pointerToWorld(svg, viewport, e));
-    edit(f, f.points.map((p, i) => (i === dragIndex ? local : p)));
+    const points = f.points.map((p, i) => (i === dragIndex ? local : p));
+    if (isValidPolygonShape(points)) edit(f, points);
   };
 
   const onUp = () => {
@@ -136,8 +139,16 @@ export function attachPolygonHandles(svg, viewport, layoutId, selection) {
   svg.addEventListener('contextmenu', onContextMenu);
   window.addEventListener('pointermove', onMove);
   window.addEventListener('pointerup', onUp);
+  window.addEventListener('pointercancel', onUp);
   window.addEventListener('keydown', onKey, true);
-  const stops = [subscribe(refresh), selection.subscribe(refresh)];
+  const stops = [
+    subscribe(refresh),
+    selection.subscribe(() => {
+      selectedVertex = null; // a vertex selected on one piece must not take the next Delete on another
+      dragIndex = null;
+      refresh();
+    }),
+  ];
   refresh();
 
   return {
@@ -147,6 +158,7 @@ export function attachPolygonHandles(svg, viewport, layoutId, selection) {
       svg.removeEventListener('contextmenu', onContextMenu);
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
       window.removeEventListener('keydown', onKey, true);
       stops.forEach((stop) => stop());
       group.remove();

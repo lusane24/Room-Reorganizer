@@ -1,6 +1,7 @@
 import { normalizeAngle } from '../geometry/transform.js';
 import { MIN_PIECE_SIZE } from '../geometry/resize.js';
-import { localOutline } from '../geometry/furnitureOutline.js';
+import { localBounds, localOutline } from '../geometry/furnitureOutline.js';
+import { selfIntersects } from '../geometry/polygon.js';
 import { newId } from './ids.js';
 
 const DEFAULT_LABEL = 'Furniture';
@@ -45,6 +46,12 @@ export function createFromPreset(preset) {
     width: preset.width,
     depth: preset.depth,
   });
+}
+
+/** True when a free shape does not cross itself and is at least the minimum size both ways. */
+export function isValidPolygonShape(points) {
+  const b = localBounds({ kind: 'polygon', points });
+  return !selfIntersects(points) && b.maxX - b.minX >= MIN_PIECE_SIZE && b.maxY - b.minY >= MIN_PIECE_SIZE;
 }
 
 function scalePolygon(f, width, depth) {

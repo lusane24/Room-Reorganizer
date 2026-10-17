@@ -1,5 +1,17 @@
 const INTERACTIVE = '[data-handle], g.piece';
 
+/**
+ * Keep receiving this pointer's events on the canvas until it is released, even if it leaves the
+ * window. Safe where pointer capture is unavailable.
+ */
+export function capturePointer(svg, event) {
+  try {
+    svg.setPointerCapture?.(event.pointerId);
+  } catch {
+    // The pointer may already be gone; the drag then ends on pointerup or pointercancel.
+  }
+}
+
 /** World position (inches) of a pointer event over the canvas. */
 export function pointerToWorld(svg, viewport, event) {
   const rect = svg.getBoundingClientRect();
@@ -17,6 +29,7 @@ export function attachCanvasInput(svg, viewport, onViewChange) {
     if (e.button !== 0 && e.button !== 1) return;
     if (e.target.closest?.(INTERACTIVE)) return;
     last = { x: e.clientX, y: e.clientY };
+    capturePointer(svg, e);
   };
   const onMove = (e) => {
     if (!last) return;
@@ -38,11 +51,13 @@ export function attachCanvasInput(svg, viewport, onViewChange) {
   svg.addEventListener('wheel', onWheel, { passive: false });
   window.addEventListener('pointermove', onMove);
   window.addEventListener('pointerup', onUp);
+  window.addEventListener('pointercancel', onUp);
 
   return () => {
     svg.removeEventListener('pointerdown', onDown);
     svg.removeEventListener('wheel', onWheel);
     window.removeEventListener('pointermove', onMove);
     window.removeEventListener('pointerup', onUp);
+    window.removeEventListener('pointercancel', onUp);
   };
 }

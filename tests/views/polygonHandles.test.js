@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { attachPolygonHandles } from '../../src/views/editor/polygonHandles.js';
 import { createSelection } from '../../src/views/editor/selection.js';
 import { createViewport } from '../../src/render/viewport.js';
@@ -94,5 +94,58 @@ describe('polygon handles', () => {
     key('Delete');
     expect(stored().points).toHaveLength(3);
     expect(getLayout(id).furniture).toHaveLength(1);
+  });
+});
+
+describe('free-shape validity while dragging', () => {
+  it('refuses a vertex move that makes the shape cross itself', () => {
+    setup();
+    fire(vertex(2), 'pointerdown', 124, 115);
+    fire(svg, 'pointermove', 60, 100); // local (-40, 0) crosses the opposite side
+    fire(svg, 'pointerup', 60, 100);
+    expect(stored().points[2]).toEqual({ x: 24, y: 15 });
+  });
+
+  it('refuses a vertex move that squashes the shape below 6 inches', () => {
+    setup({
+      points: [{ x: -10, y: -10 }, { x: 10, y: -10 }, { x: 10, y: 10 }],
+      width: 20,
+      depth: 20,
+    });
+    fire(vertex(2), 'pointerdown', 110, 110);
+    fire(svg, 'pointermove', 110, 92);
+    fire(svg, 'pointerup', 110, 92);
+    expect(stored().points[2]).toEqual({ x: 10, y: 10 });
+    expect(stored().depth).toBe(20);
+  });
+});
+
+describe('pointer handling', () => {
+  it('captures the pointer when a drag starts', () => {
+    setup();
+    svg.setPointerCapture = vi.fn();
+    fire(vertex(2), 'pointerdown', 124, 115);
+    expect(svg.setPointerCapture).toHaveBeenCalledTimes(1);
+  });
+
+  it('ends the drag when the pointer is cancelled', () => {
+    setup();
+    fire(vertex(2), 'pointerdown', 124, 115);
+    fire(svg, 'pointercancel', 124, 115);
+    fire(svg, 'pointermove', 154, 135);
+    expect(stored().points[2]).toEqual({ x: 24, y: 15 });
+  });
+});
+
+describe('stale vertex selection', () => {
+  it('Delete removes the newly selected piece, not a vertex of it, after the selection changes', () => {
+    setup();
+    fire(vertex(1), 'pointerdown', 124, 85);
+    fire(svg, 'pointerup', 124, 85);
+    const other = createFurniture('polygon', { id: 'q', x: 300, y: 300 });
+    updateLayout(id, (l) => ({ ...l, furniture: [...l.furniture, other] }));
+    selection.set('q');
+    key('Delete');
+    expect(getLayout(id).furniture.find((f) => f.id === 'q').points).toHaveLength(4);
   });
 });

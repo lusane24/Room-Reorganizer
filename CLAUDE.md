@@ -13,7 +13,14 @@ v1 is built and verified in headless Chrome with real mouse input. Update this s
 - [x] Editor view (room shape, furniture, rotation, collision warning)
 - [ ] Not in v1: snap-to-grid, undo/redo, 3D, saving to disk
 
-Known polish ideas: a piece's label can be hidden behind a piece drawn on top of it.
+Known polish ideas (deferred from the final review):
+- A piece's label can be hidden behind a piece drawn on top of it.
+- The layout name field in the editor does not refresh after a blank rename (stored as "Untitled").
+- The side panel is rebuilt on every change, so keyboard focus is lost after a field commits.
+- Length fields reject `.5`, fractions like `6 1/2"`, and give no message when input is refused.
+- After vertex edits a free shape can drift away from its own center (rotation and scaling use the piece origin).
+- Double-clicking a handle opens the rename prompt.
+- L-shape arm thickness can be set down to 1 in or up to the full width.
 
 ## Decisions
 - **Stack:** plain JavaScript (ES modules), no framework. Vite for dev server, Vitest for tests. Rendering is SVG.

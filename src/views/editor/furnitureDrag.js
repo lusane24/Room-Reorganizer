@@ -1,7 +1,7 @@
 import { patchFurniture, removeFurniture } from '../../model/layoutEdits.js';
 import { pieceAt } from '../../model/hitTest.js';
 import { getLayout } from '../../model/store.js';
-import { pointerToWorld } from './canvasInput.js';
+import { capturePointer, pointerToWorld } from './canvasInput.js';
 
 const isTyping = (target) => ['INPUT', 'TEXTAREA', 'SELECT'].includes(target?.tagName);
 
@@ -26,6 +26,7 @@ export function attachFurnitureDrag(svg, viewport, layoutId, selection) {
     const world = pointerToWorld(svg, viewport, e);
     drag = { id: piece.id, dx: piece.x - world.x, dy: piece.y - world.y };
     selection.set(piece.id);
+    capturePointer(svg, e);
     e.preventDefault();
   };
 
@@ -61,6 +62,7 @@ export function attachFurnitureDrag(svg, viewport, layoutId, selection) {
   svg.addEventListener('dblclick', onDoubleClick);
   window.addEventListener('pointermove', onMove);
   window.addEventListener('pointerup', onUp);
+  window.addEventListener('pointercancel', onUp);
   window.addEventListener('keydown', onKey);
 
   return () => {
@@ -68,6 +70,7 @@ export function attachFurnitureDrag(svg, viewport, layoutId, selection) {
     svg.removeEventListener('dblclick', onDoubleClick);
     window.removeEventListener('pointermove', onMove);
     window.removeEventListener('pointerup', onUp);
+    window.removeEventListener('pointercancel', onUp);
     window.removeEventListener('keydown', onKey);
   };
 }

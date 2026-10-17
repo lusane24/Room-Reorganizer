@@ -1,11 +1,20 @@
-import { normalizeWinding, selfIntersects, setWallLength } from '../geometry/polygon.js';
+import { normalizeWinding, selfIntersects, setWallLength, signedArea } from '../geometry/polygon.js';
 
 const MIN_CORNERS = 3;
+const MIN_AREA = 1; // square inches; anything flatter is treated as collapsed
 const isPoint = (p) => p && Number.isFinite(p.x) && Number.isFinite(p.y);
 
-/** Accept the new points only if the outline does not cross itself; otherwise keep `room`. */
+/**
+ * Accept the new points only if the outline does not cross itself, is not flattened, and has not
+ * been turned inside out (a triangle can flip without crossing, which would reorder its corners
+ * mid-drag); otherwise keep `room`.
+ */
 function accept(room, points) {
-  return selfIntersects(points) ? room : { ...room, points: normalizeWinding(points) };
+  if (selfIntersects(points)) return room;
+  const before = signedArea(room.points);
+  const after = signedArea(points);
+  if (Math.abs(after) < MIN_AREA || Math.sign(after) !== Math.sign(before)) return room;
+  return { ...room, points: normalizeWinding(points) };
 }
 
 /** A 12 by 12 foot square room. */

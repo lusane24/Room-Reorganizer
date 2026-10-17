@@ -1,7 +1,7 @@
 import { deleteCorner, insertCorner, moveCorner } from '../../model/room.js';
 import { getLayout, subscribe, updateLayout } from '../../model/store.js';
 import { svgEl } from '../../render/svg.js';
-import { pointerToWorld } from './canvasInput.js';
+import { capturePointer, pointerToWorld } from './canvasInput.js';
 
 const HANDLE_PX = 7;
 const isTyping = (target) => ['INPUT', 'TEXTAREA', 'SELECT'].includes(target?.tagName);
@@ -16,6 +16,7 @@ export function attachRoomHandles(svg, viewport, layoutId) {
   svg.querySelector('g.world').append(group);
   let dragIndex = null;
   let selected = null;
+  let cornerCount = getLayout(layoutId).room.points.length;
 
   const edit = (change) => updateLayout(layoutId, (l) => ({ ...l, room: change(l.room) }));
 
@@ -23,6 +24,10 @@ export function attachRoomHandles(svg, viewport, layoutId) {
     const layout = getLayout(layoutId);
     if (!layout) return;
     const pts = layout.room.points;
+    if (pts.length !== cornerCount) {
+      cornerCount = pts.length; // corners were added or removed, so the selected index may be stale
+      selected = null;
+    }
     const r = HANDLE_PX / viewport.zoom;
     const edges = pts.map((a, i) => {
       const b = pts[(i + 1) % pts.length];
@@ -73,6 +78,7 @@ export function attachRoomHandles(svg, viewport, layoutId) {
       dragIndex = index;
     }
     selected = dragIndex;
+    capturePointer(svg, e);
     e.preventDefault();
     refresh();
   };
@@ -107,6 +113,7 @@ export function attachRoomHandles(svg, viewport, layoutId) {
   svg.addEventListener('contextmenu', onContextMenu);
   window.addEventListener('pointermove', onMove);
   window.addEventListener('pointerup', onUp);
+  window.addEventListener('pointercancel', onUp);
   window.addEventListener('keydown', onKey);
   const unsubscribe = subscribe(refresh);
   refresh();
@@ -118,6 +125,7 @@ export function attachRoomHandles(svg, viewport, layoutId) {
       svg.removeEventListener('contextmenu', onContextMenu);
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
       window.removeEventListener('keydown', onKey);
       unsubscribe();
       group.remove();

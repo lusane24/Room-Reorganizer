@@ -91,3 +91,18 @@ describe('furniture drag', () => {
     expect(prompt).not.toHaveBeenCalled();
   });
 });
+
+describe('pointer handling', () => {
+  it('captures the pointer when a drag starts', () => {
+    svg.setPointerCapture = vi.fn();
+    fire(piece('bed'), 'pointerdown', 50, 50);
+    expect(svg.setPointerCapture).toHaveBeenCalledTimes(1);
+  });
+
+  it('ends the drag when the pointer is cancelled', () => {
+    fire(piece('bed'), 'pointerdown', 50, 50);
+    fire(svg, 'pointercancel', 50, 50);
+    fire(svg, 'pointermove', 300, 300);
+    expect([stored('bed').x, stored('bed').y]).toEqual([50, 50]);
+  });
+});

@@ -1,8 +1,9 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { attachRoomHandles } from '../../src/views/editor/roomHandles.js';
 import { createViewport } from '../../src/render/viewport.js';
 import { svgEl } from '../../src/render/svg.js';
-import { createLayout, getLayout, resetStore } from '../../src/model/store.js';
+import { createLayout, getLayout, resetStore, updateLayout } from '../../src/model/store.js';
+import { insertCorner } from '../../src/model/room.js';
 
 let svg;
 let id;
@@ -82,5 +83,30 @@ describe('room handles', () => {
   it('stops reacting after detach', () => {
     handles.detach();
     expect(svg.querySelectorAll('[data-handle]')).toHaveLength(0);
+  });
+});
+
+describe('pointer handling', () => {
+  it('captures the pointer when a drag starts', () => {
+    svg.setPointerCapture = vi.fn();
+    fire(corner(2), 'pointerdown', 144, 144);
+    expect(svg.setPointerCapture).toHaveBeenCalledTimes(1);
+  });
+
+  it('ends the drag when the pointer is cancelled', () => {
+    fire(corner(2), 'pointerdown', 144, 144);
+    fire(svg, 'pointercancel', 144, 144);
+    fire(svg, 'pointermove', 200, 200);
+    expect(points()[2]).toEqual({ x: 144, y: 144 });
+  });
+});
+
+describe('stale corner selection', () => {
+  it('Delete does nothing after the room gains a corner some other way', () => {
+    fire(corner(1), 'pointerdown', 144, 0);
+    fire(svg, 'pointerup', 144, 0);
+    updateLayout(id, (l) => ({ ...l, room: insertCorner(l.room, 0, { x: 72, y: 0 }) }));
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Delete' }));
+    expect(points()).toHaveLength(5);
   });
 });

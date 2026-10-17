@@ -76,3 +76,19 @@ describe('roomCenter', () => {
     expect(roomCenter(defaultRoom())).toEqual({ x: 72, y: 72 });
   });
 });
+
+describe('rooms cannot be turned inside out or flattened', () => {
+  const triangle = { points: [{ x: 0, y: 0 }, { x: 100, y: 0 }, { x: 50, y: 100 }] };
+
+  it('refuses to drag a triangle corner across the opposite wall', () => {
+    expect(moveCorner(triangle, 2, { x: 50, y: -60 })).toBe(triangle);
+  });
+
+  it('refuses to flatten a triangle onto its opposite wall', () => {
+    expect(moveCorner(triangle, 2, { x: 50, y: 0 })).toBe(triangle);
+  });
+
+  it('still allows ordinary moves of a triangle corner', () => {
+    expect(moveCorner(triangle, 2, { x: 60, y: 120 }).points[2]).toEqual({ x: 60, y: 120 });
+  });
+});

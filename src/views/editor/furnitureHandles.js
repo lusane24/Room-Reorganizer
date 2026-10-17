@@ -4,7 +4,7 @@ import { resizeFurniture } from '../../geometry/resize.js';
 import { patchFurniture, replaceFurniture } from '../../model/layoutEdits.js';
 import { getLayout, subscribe } from '../../model/store.js';
 import { svgEl } from '../../render/svg.js';
-import { pointerToWorld } from './canvasInput.js';
+import { capturePointer, pointerToWorld } from './canvasInput.js';
 
 const HANDLE_PX = 8;
 const ROTATE_OFFSET_PX = 28;
@@ -38,7 +38,8 @@ export function attachFurnitureHandles(svg, viewport, layoutId, selection) {
     const size = HANDLE_PX / viewport.zoom;
     const stemTop = b.minY - ROTATE_OFFSET_PX / viewport.zoom;
 
-    const squares = Object.entries(DIRECTIONS).map(([dir, [fx, fy]]) =>
+    // Free shapes are resized with their vertex handles, which sit exactly where these squares would.
+    const squares = f.kind === 'polygon' ? [] : Object.entries(DIRECTIONS).map(([dir, [fx, fy]]) =>
       svgEl('rect', {
         x: b.minX + fx * (b.maxX - b.minX) - size / 2,
         y: b.minY + fy * (b.maxY - b.minY) - size / 2,
@@ -72,6 +73,7 @@ export function attachFurnitureHandles(svg, viewport, layoutId, selection) {
     drag = el.dataset.handle === 'rotate'
       ? { type: 'rotate' }
       : { type: 'resize', dir: el.dataset.dir, start: piece, from: pointerToWorld(svg, viewport, e) };
+    capturePointer(svg, e);
     e.preventDefault();
   };
 
@@ -98,6 +100,7 @@ export function attachFurnitureHandles(svg, viewport, layoutId, selection) {
   svg.addEventListener('pointerdown', onDown);
   window.addEventListener('pointermove', onMove);
   window.addEventListener('pointerup', onUp);
+  window.addEventListener('pointercancel', onUp);
   const stops = [subscribe(refresh), selection.subscribe(refresh)];
   refresh();
 
@@ -107,6 +110,7 @@ export function attachFurnitureHandles(svg, viewport, layoutId, selection) {
       svg.removeEventListener('pointerdown', onDown);
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
       stops.forEach((stop) => stop());
       group.remove();
     },
