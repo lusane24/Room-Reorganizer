@@ -13,3 +13,8 @@
 .corner-handle { fill: #fff; }
 .corner-handle.selected { fill: var(--accent); }
 .edge-handle { fill: var(--accent); fill-opacity: 0.35; }
+
+.selection-box { fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 5 4; vector-effect: non-scaling-stroke; }
+.rotate-stem { stroke: var(--accent); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.resize-handle { fill: #fff; cursor: nwse-resize; }
+.rotate-handle { fill: var(--accent); cursor: grab; }

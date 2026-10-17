@@ -7,6 +7,8 @@ import { createViewport } from '../../render/viewport.js';
 import { h } from '../dom.js';
 import { attachCanvasInput } from './canvasInput.js';
 import { attachFurnitureDrag } from './furnitureDrag.js';
+import { attachFurnitureHandles } from './furnitureHandles.js';
+import { attachPolygonHandles } from './polygonHandles.js';
 import { renderFurnitureTab } from './furnitureTab.js';
 import { renderRoomTab } from './roomTab.js';
 import { attachRoomHandles } from './roomHandles.js';
@@ -62,27 +64,28 @@ export function renderEditor(root, layoutId, { onBack }) {
     renderGrid(gridG, viewport, canvasSize());
     renderRoom(roomG, current.room, { labelSize });
     renderFurniture(furnitureG, current.furniture, { selectedId: selection.get(), labelSize });
-    roomHandles?.refresh();
+    tools.forEach((tool) => tool.refresh?.());
   }
 
-  let roomHandles = null;
-  let furnitureDrag = null;
+  // Canvas tools for the active tab; each has detach() and, if its look depends on zoom, refresh().
+  let tools = [];
   let tabCleanup = null;
 
   function showTab(name) {
     tabCleanup?.();
-    roomHandles?.detach();
-    roomHandles = null;
-    furnitureDrag?.();
-    furnitureDrag = null;
+    tools.forEach((tool) => tool.detach());
     tabButtons.forEach((b) => b.classList.toggle('active', b.dataset.tab === name));
 
     if (name === 'room') {
       tabCleanup = renderRoomTab(tabContent, layoutId);
-      roomHandles = attachRoomHandles(svg, viewport, layoutId);
+      tools = [attachRoomHandles(svg, viewport, layoutId)];
     } else {
       tabCleanup = renderFurnitureTab(tabContent, layoutId, selection);
-      furnitureDrag = attachFurnitureDrag(svg, viewport, layoutId, selection);
+      tools = [
+        { detach: attachFurnitureDrag(svg, viewport, layoutId, selection) },
+        attachFurnitureHandles(svg, viewport, layoutId, selection),
+        attachPolygonHandles(svg, viewport, layoutId, selection),
+      ];
     }
   }
 
@@ -102,7 +105,6 @@ export function renderEditor(root, layoutId, { onBack }) {
     detachInput();
     window.removeEventListener('resize', redraw);
     tabCleanup?.();
-    roomHandles?.detach();
-    furnitureDrag?.();
+    tools.forEach((tool) => tool.detach());
   };
 }

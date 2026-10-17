@@ -39,3 +39,13 @@ export function furnitureOutline(f) {
     return { x: r.x + f.x, y: r.y + f.y };
   });
 }
+
+/** Bounding box of a piece in its own (unrotated) coordinates around its center. */
+export function localBounds(f) {
+  if (f.kind === 'polygon') {
+    const xs = f.points.map((p) => p.x);
+    const ys = f.points.map((p) => p.y);
+    return { minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys) };
+  }
+  return { minX: -f.width / 2, maxX: f.width / 2, minY: -f.depth / 2, maxY: f.depth / 2 };
+}

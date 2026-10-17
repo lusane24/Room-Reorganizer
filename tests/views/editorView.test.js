@@ -89,3 +89,25 @@ describe('editor view furniture tab', () => {
     expect(root.querySelectorAll('svg.canvas g.piece.selected')).toHaveLength(1);
   });
 });
+
+describe('editor view furniture handles', () => {
+  it('shows resize and rotation handles for the selected piece, and vertex handles for a free shape', () => {
+    renderEditor(root, id, { onBack: () => {} });
+    root.querySelector('[data-tab="furniture"]').click();
+    root.querySelector('[data-add="rect"]').click();
+    expect(root.querySelectorAll('[data-handle="resize"]')).toHaveLength(8);
+    expect(root.querySelectorAll('[data-handle="rotate"]')).toHaveLength(1);
+    expect(root.querySelectorAll('[data-handle="vertex"]')).toHaveLength(0);
+    root.querySelector('[data-add="polygon"]').click();
+    expect(root.querySelectorAll('[data-handle="vertex"]')).toHaveLength(4);
+  });
+
+  it('drops all canvas handles when leaving the Furniture tab', () => {
+    renderEditor(root, id, { onBack: () => {} });
+    root.querySelector('[data-tab="furniture"]').click();
+    root.querySelector('[data-add="rect"]').click();
+    root.querySelector('[data-tab="room"]').click();
+    expect(root.querySelectorAll('[data-handle="resize"]')).toHaveLength(0);
+    expect(root.querySelectorAll('[data-handle="corner"]')).toHaveLength(4);
+  });
+});

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { furnitureOutline } from '../../src/geometry/furnitureOutline.js';
+import { furnitureOutline, localBounds } from '../../src/geometry/furnitureOutline.js';
 
 const bbox = (pts) => ({
   minX: Math.min(...pts.map((p) => p.x)),
@@ -61,5 +61,16 @@ describe('furnitureOutline', () => {
     expect(furnitureOutline(f)).toEqual([
       { x: 90, y: 90 }, { x: 110, y: 90 }, { x: 100, y: 110 },
     ]);
+  });
+});
+
+describe('localBounds', () => {
+  it('is centered on the origin for a rect', () => {
+    expect(localBounds(piece())).toEqual({ minX: -30, maxX: 30, minY: -40, maxY: 40 });
+  });
+
+  it('follows the points of a polygon', () => {
+    const f = piece({ kind: 'polygon', points: [{ x: -5, y: -2 }, { x: 20, y: -2 }, { x: 4, y: 9 }] });
+    expect(localBounds(f)).toEqual({ minX: -5, maxX: 20, minY: -2, maxY: 9 });
   });
 });
