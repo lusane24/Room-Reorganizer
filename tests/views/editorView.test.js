@@ -78,3 +78,14 @@ describe('editor view', () => {
     expect(root.querySelectorAll('polygon.room')).toHaveLength(0);
   });
 });
+
+describe('editor view furniture tab', () => {
+  it('adds a piece from the Furniture tab and draws it', () => {
+    renderEditor(root, id, { onBack: () => {} });
+    root.querySelector('[data-tab="furniture"]').click();
+    root.querySelector('[data-add="rect"]').click();
+    expect(getLayout(id).furniture).toHaveLength(1);
+    expect(root.querySelectorAll('svg.canvas g.piece')).toHaveLength(1);
+    expect(root.querySelectorAll('svg.canvas g.piece.selected')).toHaveLength(1);
+  });
+});

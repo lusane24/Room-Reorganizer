@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  defaultRoom, moveCorner, insertCorner, deleteCorner, setRoomWallLength,
+  defaultRoom, moveCorner, insertCorner, deleteCorner, setRoomWallLength, roomCenter,
 } from '../../src/model/room.js';
 import { wallLengths } from '../../src/geometry/polygon.js';
 
@@ -68,5 +68,11 @@ describe('setRoomWallLength', () => {
     };
     // Lengthening wall 2 (100,50 -> 50,50) to 200 pushes its end through the room's far wall.
     expect(setRoomWallLength(lShape, 2, 200)).toBe(lShape);
+  });
+});
+
+describe('roomCenter', () => {
+  it('is the middle of the room bounding box', () => {
+    expect(roomCenter(defaultRoom())).toEqual({ x: 72, y: 72 });
   });
 });

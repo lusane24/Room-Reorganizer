@@ -40,3 +40,10 @@ export function setRoomWallLength(room, index, length) {
   if (!(length > 0) || !Number.isFinite(length) || !room.points[index]) return room;
   return accept(room, setWallLength(room.points, index, length));
 }
+
+/** Middle of the room's bounding box; where new furniture is placed. */
+export function roomCenter(room) {
+  const xs = room.points.map((p) => p.x);
+  const ys = room.points.map((p) => p.y);
+  return { x: (Math.min(...xs) + Math.max(...xs)) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 };
+}

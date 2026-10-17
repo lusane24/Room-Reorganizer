@@ -24,3 +24,13 @@
 .wall-row input { font: inherit; padding: 4px 6px; border: 1px solid var(--line); border-radius: 4px; }
 .wall-row button { grid-column: 2; justify-self: start; padding: 2px 8px; font-size: 0.8rem; }
 .wall-name { color: var(--muted); font-size: 0.9rem; }
+
+.add-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.tab-content select { width: 100%; font: inherit; padding: 6px; margin-bottom: 10px; }
+.piece-list { list-style: none; padding: 0; margin: 0 0 12px; display: flex; flex-wrap: wrap; gap: 4px; }
+.piece-list button { padding: 2px 8px; font-size: 0.85rem; }
+.piece-list button.active { border-color: var(--accent); background: #e8f0fe; }
+.piece-form { display: grid; gap: 8px; border-top: 1px solid var(--line); padding-top: 12px; }
+.field { display: grid; grid-template-columns: 90px 1fr; align-items: center; gap: 8px; font-size: 0.9rem; }
+.field input { font: inherit; padding: 4px 6px; border: 1px solid var(--line); border-radius: 4px; min-width: 0; }
+.field input[type="color"] { padding: 0; height: 28px; }

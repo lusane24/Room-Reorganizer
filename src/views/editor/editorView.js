@@ -6,6 +6,8 @@ import { svgEl } from '../../render/svg.js';
 import { createViewport } from '../../render/viewport.js';
 import { h } from '../dom.js';
 import { attachCanvasInput } from './canvasInput.js';
+import { attachFurnitureDrag } from './furnitureDrag.js';
+import { renderFurnitureTab } from './furnitureTab.js';
 import { renderRoomTab } from './roomTab.js';
 import { attachRoomHandles } from './roomHandles.js';
 import { createSelection } from './selection.js';
@@ -64,25 +66,29 @@ export function renderEditor(root, layoutId, { onBack }) {
   }
 
   let roomHandles = null;
+  let furnitureDrag = null;
   let tabCleanup = null;
 
   function showTab(name) {
     tabCleanup?.();
     roomHandles?.detach();
     roomHandles = null;
+    furnitureDrag?.();
+    furnitureDrag = null;
     tabButtons.forEach((b) => b.classList.toggle('active', b.dataset.tab === name));
 
     if (name === 'room') {
       tabCleanup = renderRoomTab(tabContent, layoutId);
       roomHandles = attachRoomHandles(svg, viewport, layoutId);
     } else {
-      tabContent.replaceChildren(h('h2', {}, 'Furniture'), h('p', { class: 'hint' }, 'Furniture tools are coming in the next build step.'));
-      tabCleanup = null;
+      tabCleanup = renderFurnitureTab(tabContent, layoutId, selection);
+      furnitureDrag = attachFurnitureDrag(svg, viewport, layoutId, selection);
     }
   }
 
   const detachInput = attachCanvasInput(svg, viewport, redraw);
   const unsubscribe = subscribe(redraw);
+  const unsubscribeSelection = selection.subscribe(redraw);
   window.addEventListener('resize', redraw);
 
   const { width, height } = canvasSize();
@@ -92,9 +98,11 @@ export function renderEditor(root, layoutId, { onBack }) {
 
   return () => {
     unsubscribe();
+    unsubscribeSelection();
     detachInput();
     window.removeEventListener('resize', redraw);
     tabCleanup?.();
     roomHandles?.detach();
+    furnitureDrag?.();
   };
 }
