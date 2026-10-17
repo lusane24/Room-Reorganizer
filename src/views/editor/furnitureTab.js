@@ -3,6 +3,7 @@ import { addFurniture, patchFurniture, removeFurniture } from '../../model/layou
 import { PRESETS } from '../../model/presets.js';
 import { roomCenter } from '../../model/room.js';
 import { getLayout, subscribe } from '../../model/store.js';
+import { computeWarnings, describeWarning } from '../../model/warnings.js';
 import { formatLength, parseLength } from '../../units/feetInches.js';
 import { h } from '../dom.js';
 
@@ -37,7 +38,7 @@ export function renderFurnitureTab(container, layoutId, selection) {
 
   const row = (label, input) => h('label', { class: 'field' }, h('span', {}, label), input);
 
-  function selectedForm(piece) {
+  function selectedForm(piece, warning, furniture) {
     const patch = (change) => patchFurniture(layoutId, piece.id, change);
 
     const label = h('input', { type: 'text', value: piece.label, 'data-role': 'label', 'aria-label': 'Label' });
@@ -62,6 +63,7 @@ export function renderFurnitureTab(container, layoutId, selection) {
     return h(
       'div',
       { class: 'piece-form' },
+      warning && h('p', { class: 'warning-text', role: 'status' }, describeWarning(warning, furniture)),
       row('Label', label),
       lengthField('width', 'Width', piece.width, (v) => patch({ width: v })),
       lengthField('depth', 'Depth', piece.depth, (v) => patch({ depth: v })),
@@ -108,7 +110,7 @@ export function renderFurnitureTab(container, layoutId, selection) {
             class: f.id === selected?.id ? 'active' : null,
             onClick: () => selection.set(f.id),
           }, f.label)))),
-      selected ? selectedForm(selected) : h('p', { class: 'hint' }, 'Select a piece on the canvas or in the list to edit it.'),
+      selected ? selectedForm(selected, computeWarnings(layout).get(selected.id), layout.furniture) : h('p', { class: 'hint' }, 'Select a piece on the canvas or in the list to edit it.'),
     );
   }
 

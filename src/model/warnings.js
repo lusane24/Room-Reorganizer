@@ -28,3 +28,14 @@ export function computeWarnings(layout) {
   }
   return warnings;
 }
+
+/** Plain-language description of one piece's warning, e.g. `Overlaps: Sofa. Outside room`. */
+export function describeWarning(warning, furniture) {
+  const parts = [];
+  if (warning.overlaps.length) {
+    const names = warning.overlaps.map((id) => furniture.find((f) => f.id === id)?.label ?? 'another piece');
+    parts.push(`Overlaps: ${names.join(', ')}`);
+  }
+  if (warning.outside) parts.push('Outside room');
+  return parts.join('. ');
+}

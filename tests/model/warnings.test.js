@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeWarnings } from '../../src/model/warnings.js';
+import { computeWarnings, describeWarning } from '../../src/model/warnings.js';
 
 const square = (size) => ({
   points: [{ x: 0, y: 0 }, { x: size, y: 0 }, { x: size, y: size }, { x: 0, y: size }],
@@ -49,5 +49,25 @@ describe('computeWarnings', () => {
     expect(computeWarnings(fits).size).toBe(0);
     const pokes = layout(room, [piece('a', 50, 10, { width: 90, depth: 20, rotation: 725 })]);
     expect(computeWarnings(pokes).get('a').outside).toBe(true);
+  });
+});
+
+describe('describeWarning', () => {
+  const pieces = [{ id: 'a', label: 'Bed' }, { id: 'b', label: 'Sofa' }];
+
+  it('names overlapping pieces by label', () => {
+    expect(describeWarning({ overlaps: ['a', 'b'], outside: false }, pieces)).toBe('Overlaps: Bed, Sofa');
+  });
+
+  it('reports leaving the room', () => {
+    expect(describeWarning({ overlaps: [], outside: true }, pieces)).toBe('Outside room');
+  });
+
+  it('combines both', () => {
+    expect(describeWarning({ overlaps: ['b'], outside: true }, pieces)).toBe('Overlaps: Sofa. Outside room');
+  });
+
+  it('copes with a piece that no longer exists', () => {
+    expect(describeWarning({ overlaps: ['gone'], outside: false }, pieces)).toBe('Overlaps: another piece');
   });
 });

@@ -1,4 +1,5 @@
 import { getLayout, renameLayout, subscribe } from '../../model/store.js';
+import { computeWarnings } from '../../model/warnings.js';
 import { renderGrid } from '../../render/gridRenderer.js';
 import { renderFurniture } from '../../render/furnitureRenderer.js';
 import { renderRoom } from '../../render/roomRenderer.js';
@@ -63,7 +64,11 @@ export function renderEditor(root, layoutId, { onBack }) {
     world.setAttribute('transform', viewport.transformAttr());
     renderGrid(gridG, viewport, canvasSize());
     renderRoom(roomG, current.room, { labelSize });
-    renderFurniture(furnitureG, current.furniture, { selectedId: selection.get(), labelSize });
+    renderFurniture(furnitureG, current.furniture, {
+      selectedId: selection.get(),
+      warnings: computeWarnings(current),
+      labelSize,
+    });
     tools.forEach((tool) => tool.refresh?.());
   }
 

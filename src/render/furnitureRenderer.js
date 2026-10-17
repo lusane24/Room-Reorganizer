@@ -1,4 +1,5 @@
 import { furnitureOutline, localOutline } from '../geometry/furnitureOutline.js';
+import { describeWarning } from '../model/warnings.js';
 import { pointsAttr, svgEl } from './svg.js';
 
 function shapeElement(f) {
@@ -13,16 +14,6 @@ function shapeElement(f) {
   }
 }
 
-function warningText(warning, pieces) {
-  const parts = [];
-  if (warning.overlaps.length) {
-    const names = warning.overlaps.map((id) => pieces.find((p) => p.id === id)?.label ?? 'another piece');
-    parts.push(`Overlaps: ${names.join(', ')}`);
-  }
-  if (warning.outside) parts.push('Outside room');
-  return parts.join('. ');
-}
-
 function badge(f, warning, pieces, labelSize) {
   const outline = furnitureOutline(f);
   const x = Math.max(...outline.map((p) => p.x));
@@ -33,7 +24,7 @@ function badge(f, warning, pieces, labelSize) {
   });
   mark.textContent = '!';
   const title = svgEl('title');
-  title.textContent = warningText(warning, pieces);
+  title.textContent = describeWarning(warning, pieces);
   return svgEl('g', { class: 'warning-badge', 'pointer-events': 'none' }, [
     title,
     svgEl('circle', { cx: x, cy: y, r, fill: 'var(--danger, #d92d20)' }),
