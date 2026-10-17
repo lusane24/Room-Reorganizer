@@ -16,8 +16,9 @@ function shapeElement(f) {
 
 function badge(f, warning, pieces, labelSize) {
   const outline = furnitureOutline(f);
-  const x = Math.max(...outline.map((p) => p.x));
-  const y = Math.min(...outline.map((p) => p.y));
+  // The corner nearest the top-right of the screen, so the badge always sits on the piece.
+  const corner = outline.reduce((best, p) => (p.x - p.y > best.x - best.y ? p : best));
+  const { x, y } = corner;
   const r = labelSize * 0.8;
   const mark = svgEl('text', {
     x, y, 'font-size': labelSize, 'text-anchor': 'middle', 'dominant-baseline': 'central', fill: '#fff',

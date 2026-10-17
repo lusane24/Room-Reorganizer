@@ -6,6 +6,7 @@ import { renderGrid } from '../../src/render/gridRenderer.js';
 import { createViewport } from '../../src/render/viewport.js';
 import { defaultRoom } from '../../src/model/room.js';
 import { createFurniture } from '../../src/model/furniture.js';
+import { furnitureOutline } from '../../src/geometry/furnitureOutline.js';
 
 let group;
 beforeEach(() => {
@@ -18,6 +19,13 @@ describe('renderRoom', () => {
     expect(group.querySelectorAll('polygon.room')).toHaveLength(1);
     const labels = [...group.querySelectorAll('text.wall-label')].map((t) => t.textContent);
     expect(labels).toEqual(["12'", "12'", "12'", "12'"]);
+  });
+
+  it('places wall labels clear of the wall handles, even on vertical walls', () => {
+    renderRoom(group, defaultRoom(), { labelSize: 4 });
+    const labels = [...group.querySelectorAll('text.wall-label')];
+    const left = labels[3]; // wall 4 runs up the x = 0 side
+    expect(Number(left.getAttribute('x'))).toBeLessThanOrEqual(-4 * 1.5);
   });
 
   it('can hide the length labels', () => {
@@ -63,6 +71,16 @@ describe('renderFurniture', () => {
     const label = bed.querySelector('text.piece-label');
     expect(label.closest('g.shape')).toBeNull();
     expect(label.getAttribute('transform')).toBeNull();
+  });
+
+  it('puts the warning badge on a corner of the piece even when it is rotated', () => {
+    const rotated = createFurniture('rect', { id: 'r', x: 100, y: 100, width: 80, depth: 20, rotation: 40 });
+    const warnings = new Map([['r', { overlaps: [], outside: true }]]);
+    renderFurniture(group, [rotated], { labelSize: 4, warnings });
+    const circle = group.querySelector('.warning-badge circle');
+    const at = { x: Number(circle.getAttribute('cx')), y: Number(circle.getAttribute('cy')) };
+    const onCorner = furnitureOutline(rotated).some((p) => Math.hypot(p.x - at.x, p.y - at.y) < 1e-6);
+    expect(onCorner).toBe(true);
   });
 
   it('uses the right element for each shape kind', () => {

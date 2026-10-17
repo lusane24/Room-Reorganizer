@@ -3,14 +3,17 @@
 A 2D, in-browser tool for trying out furniture arrangements. You model a room of any shape, add labeled furniture of adjustable size and shape, and drag it around. Several layouts can be kept, reopened and edited while the program is running.
 
 ## Status
-Planning. No product code yet. Update this section as work progresses.
+v1 is built and verified in headless Chrome with real mouse input. Update this section as work progresses.
 - [x] Node.js v24 LTS installed at `~/.local/node` (on PATH via `~/.zshrc`)
-- [ ] Design approved (home and editor mockups still to review)
+- [x] Design approved (specs in `docs/superpowers/specs/`)
 - [x] Scaffold (Vite + Vitest)
-- [ ] `geometry/` and `units/` with tests
-- [ ] `model/` and store
-- [ ] Home view
-- [ ] Editor view (room shape, furniture, rotation, collision warning)
+- [x] `geometry/` and `units/` with tests
+- [x] `model/` and store
+- [x] Home view (new, open, rename, duplicate, delete)
+- [x] Editor view (room shape, furniture, rotation, collision warning)
+- [ ] Not in v1: snap-to-grid, undo/redo, 3D, saving to disk
+
+Known polish ideas: a piece's label can be hidden behind a piece drawn on top of it.
 
 ## Decisions
 - **Stack:** plain JavaScript (ES modules), no framework. Vite for dev server, Vitest for tests. Rendering is SVG.
@@ -36,7 +39,8 @@ Room reorganizor/
   CLAUDE.md              this file
   src/
     main.js              starts the app, switches home/editor
-    model/               layout.js, room.js, furniture.js, store.js
+    app/                 router.js (home/editor switching)
+    model/               layout, room, furniture, presets, store, layoutEdits, warnings, hitTest
     geometry/            overlap, rotation, polygon helpers
     units/               feet/inches parsing and display
     views/
@@ -47,7 +51,7 @@ Room reorganizor/
   tests/
 ```
 
-## Commands (once scaffolded)
+## Commands
 - `npm run dev` start the dev server
 - `npm test` run Vitest
 

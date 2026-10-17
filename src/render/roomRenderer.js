@@ -16,7 +16,7 @@ export function renderRoom(group, room, { labelSize = 4, showDimensions = true }
       const dx = b.x - a.x;
       const dy = b.y - a.y;
       const len = Math.hypot(dx, dy) || 1;
-      const offset = labelSize * 1.1;
+      const offset = labelSize * 1.8; // clear of the wall's handle, even for wide text beside a vertical wall
       const label = svgEl('text', {
         x: (a.x + b.x) / 2 + (dy / len) * offset,
         y: (a.y + b.y) / 2 - (dx / len) * offset,
