@@ -6,7 +6,7 @@ A 2D, in-browser tool for trying out furniture arrangements. You model a room of
 Planning. No product code yet. Update this section as work progresses.
 - [x] Node.js v24 LTS installed at `~/.local/node` (on PATH via `~/.zshrc`)
 - [ ] Design approved (home and editor mockups still to review)
-- [ ] Scaffold (Vite + Vitest)
+- [x] Scaffold (Vite + Vitest)
 - [ ] `geometry/` and `units/` with tests
 - [ ] `model/` and store
 - [ ] Home view
