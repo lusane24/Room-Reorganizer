@@ -1,4 +1,4 @@
+import { mountApp } from './app/router.js';
+
 const root = document.getElementById('app');
-if (root) {
-  root.innerHTML = '<h1>Room Reorganizer</h1>';
-}
+if (root) mountApp(root);
