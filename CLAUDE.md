@@ -5,7 +5,7 @@ A 2D, in-browser tool for trying out furniture arrangements. You model a room of
 ## Status
 v1 is built and verified in headless Chrome with real mouse input. Update this section as work progresses.
 - [x] Node.js v24 LTS installed at `~/.local/node` (on PATH via `~/.zshrc`)
-- [x] Design approved (specs in `docs/superpowers/specs/`)
+- [x] Design approved
 - [x] Scaffold (Vite + Vitest)
 - [x] `geometry/` and `units/` with tests
 - [x] `model/` and store
